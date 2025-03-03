@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qexx</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fontdiner+Swanky&display=swap");
+
+@property --pixel-paint-colors {
+  syntax: "<color>#";
+  initial-value: #f8fafc, #f1f5f9, #cbd5e1;
+  inherits: false;
+}
+
+@property --pixel-paint-gap {
+  syntax: "<number>";
+  initial-value: 4;
+  inherits: false;
+}
+
+@property --pixel-paint-progress {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: true;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: grid;
+  color: white;
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  place-items: center;
+  place-content: center;
+  background: #09090b;
+}
+
+h1 {
+  --_deg: -10deg;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-block: 3vmin;
+  font-size: 15vmin;
+  font-family: "Fontdiner Swanky", serif;
+  text-align: center;
+  rotate: var(--_deg);
+  transform: skew(var(--_deg));
+
+  > :nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  > :nth-child(2) {
+    margin-block-start: -0.25em;
+  }
+
+  > :nth-child(3) {
+    margin-block-start: -0.07em;
+  }
+
+  .tada {
+    font-size: 1.25em;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-block-start: -0.16em;
+    margin-inline-start: -0.75em;
+  }
+
+  .year {
+    grid-column: 2;
+    grid-row: 3;
+    margin-inline-start: 0.4em;
+    font-size: 0.5em;
+    letter-spacing: 0.02em;
+  }
+}
+
+.no-support {
+  line-height: 1.4;
+  text-align: center;
+  color: black;
+  background-color: papayawhip;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+@supports (background-image: paint(pixel-paint)) {
+  .no-support {
+    display: none;
+  }
+
+  main {
+    --pixel-paint-colors: #09090b, #18181b, #27272a;
+    --pixel-paint-gap: 8;
+    background-image: paint(pixel-paint);
+    animation: 1s steps(10) infinite sparkle;
+  }
+
+  h1 {
+    color: transparent;
+    background-clip: text;
+    background-image: paint(pixel-paint);
+  }
+
+  @keyframes sparkle {
+    to {
+      --pixel-paint-progress: 1;
+    }
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <main>
+  <h1>
+    <span>Happy</span>
+    <span>new</span>
+    <span>year!</span>
+    <span class="tada">🎉</span>
+    <span class="year">2025</span>
+  </h1>
+
+  <div class="no-support">⚠️ <a href="https://developer.mozilla.org/en-US/docs/Web/API/CSS_Painting_API/Guide">CSS Paint API</a> is not supported in this browser. Try viewing in Chrome.</div>
+</main>
+
+<script>
+  CSS.paintWorklet.addModule('https://codepen.io/hexagoncircle/pen/ogvoXpx.js');
+</script>
+
+  <script>
+   function getRandom(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+class PixelPaint {
+  static get inputProperties() {
+    return [
+      "--pixel-paint-colors",
+      "--pixel-paint-gap",
+      "--pixel-paint-progress"
+    ];
+  }
+
+  paint(ctx, bounds, props) {
+    const colors = props
+      .getAll("--pixel-paint-colors")
+      .map((color) => color.toString());
+    const gap = props.get("--pixel-paint-gap").value;
+
+    for (let x = 0; x < bounds.width; x += gap) {
+      for (let y = 0; y < bounds.height; y += gap) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const size = getRandom(1, 2);
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, size, size);
+      }
+    }
+  }
+}
+
+if (typeof registerPaint !== "undefined") {
+  registerPaint("pixel-paint", PixelPaint);
+}
+
+  </script>
+
+</body>
+</html>
